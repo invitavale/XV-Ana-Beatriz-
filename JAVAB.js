@@ -55,18 +55,44 @@ function showMusicButton() {
     if (musicPlayer) musicPlayer.style.display = 'block';
 }
 
-// Botón "Ingresar con música"
-function enterWithMusicClick() {
-    playMusic();          // primero el audio, para que Safari lo permita
-    showMusicButton();
-    hideWelcome();
-}
+/* ---------------------------------------------------------
+   Intro: el PRIMER toque en cualquier parte de la pantalla
+   1) arranca la música (audio.play() dentro del mismo toque:
+      así Safari / iPhone la dejan sonar),
+   2) reproduce el video del sobre (sin sonido),
+   3) al terminar el video se abre la invitación.
+   --------------------------------------------------------- */
+let introStarted = false;
+function startIntro() {
+    if (introStarted) return;
+    introStarted = true;
 
-// Botón "Ingresar sin música" (el botón flotante permite activarla después)
-function enterWithoutMusicClick() {
+    playMusic();                      // primero la música, dentro del gesto
     showMusicButton();
-    updateMusicIcon();
-    hideWelcome();
+
+    const overlay = document.getElementById('welcomeModal');
+    const video = document.getElementById('introVideo');
+    if (overlay) overlay.classList.add('is-playing');
+
+    if (!video) { hideWelcome(); return; }
+
+    let finished = false;
+    const finish = () => {
+        if (finished) return;
+        finished = true;
+        hideWelcome();
+    };
+
+    // Empieza el fundido un poco antes del final para que sea suave
+    video.addEventListener('timeupdate', () => {
+        if (video.duration && video.currentTime >= video.duration - 0.9) finish();
+    });
+    video.addEventListener('ended', finish);
+    video.addEventListener('error', finish);
+
+    const p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(finish);   // si el video no puede sonar, se entra directo
+    setTimeout(finish, 13000);                                 // respaldo por si el video se queda trabado
 }
 
 function toggleMusic() {
@@ -94,6 +120,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const musicToggle = document.getElementById('musicToggle');
     if (musicToggle) musicToggle.addEventListener('click', toggleMusic);
+
+    const intro = document.getElementById('welcomeModal');
+    if (intro) {
+        intro.addEventListener('click', startIntro);
+        intro.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startIntro(); }
+        });
+    }
 
     // Mostrar el modal de bienvenida para elegir con/sin música
     const modal = document.getElementById('welcomeModal');

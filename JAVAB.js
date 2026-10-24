@@ -389,7 +389,7 @@ function copyAccount(btn) {
 
 function confirmAttendance() {
     // Ejemplo: aquí se debe colocar el enlace real al formulario de Google Forms.
-    window.open('https://docs.google.com/forms/d/e/1FAIpQLSdIYoM33yAkMmS4DZCRVmO9_IE0gZT4eEw8cV0r2PgWlYE0Ag/viewform?usp=header', '_blank');
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSeF5u6Gbe_Zg1ZvNi-SjCKFw6TM9Go3zAktnbt3QgyEQt6Jbg/viewform?usp=publish-editor', '_blank');
 }
 
 // Sistema de Toast
